@@ -10,7 +10,7 @@ export class ChannelRepository {
     },
   };
 
-  getChannelList(){
+  getChannelList() {
     return this.channelList;
   }
 }

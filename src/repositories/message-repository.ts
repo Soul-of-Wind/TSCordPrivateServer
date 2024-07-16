@@ -15,6 +15,6 @@ export class MessageRepository {
 
   addMessage(message: MessageDto) {
     this.messageList[message.id] = message;
-    return message
+    return message;
   }
 }
