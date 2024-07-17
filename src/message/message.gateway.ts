@@ -26,14 +26,19 @@ export class MessageGateway {
     @ConnectedSocket() client: Socket,
   ) {
     const message = await this.chatService.create(createMessageDto, client.id);
-    this.server.emit('message', message as any);
 
-    return message;
+    const response = {
+      channelId: createMessageDto.channelId,
+      message: message,
+    };
+
+    this.server.emit('message', response as any);
+    return response;
   }
 
   @SubscribeMessage('findAllMessages')
-  findAll() {
-    return this.chatService.findAll();
+  findAll(@MessageBody() createMessageDto: CreateMessageDto) {
+    return this.chatService.findAll(createMessageDto.channelId);
   }
 
   @SubscribeMessage('join')
