@@ -41,6 +41,11 @@ export class MessageGateway {
     return this.chatService.findAll(createMessageDto.channelId);
   }
 
+  @SubscribeMessage('findAllChannels')
+  findAllChannels() {
+    return this.chatService.channelList;
+  }
+
   @SubscribeMessage('join')
   joinRoom(
     @MessageBody('name') name: string,
