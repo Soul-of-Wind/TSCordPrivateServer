@@ -5,7 +5,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { ChatService } from './chat.service';
+import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io';
 
@@ -14,11 +14,11 @@ import { Server, Socket } from 'socket.io';
     origin: '*',
   },
 })
-export class ChatGateway {
+export class MessageGateway {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: MessageService) {}
 
   @SubscribeMessage('createMessage')
   async create(
