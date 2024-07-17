@@ -5,4 +5,4 @@ import { MessageService } from './message.service';
 @Module({
   providers: [MessageGateway, MessageService],
 })
-export class ChatModule {}
+export class MessageModule {}
