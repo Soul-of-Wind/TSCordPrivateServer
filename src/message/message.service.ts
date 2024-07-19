@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { ChannelEntity } from './entities/channel.entity';
+import moment from 'moment';
 
 @Injectable()
 export class MessageService {
@@ -15,6 +16,7 @@ export class MessageService {
     const message = {
       name: this.clientToUser[clientId],
       text: createMessageDto.text,
+      created: moment().format('Y-m-d H:i:s'),
     };
 
     this.getChannel(createMessageDto.channelId)?.messages.push(message);
