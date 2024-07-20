@@ -20,14 +20,17 @@ export class MessageGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly chatService: MessageService) {}
+  constructor(private readonly messageService: MessageService) {}
 
   @SubscribeMessage('createMessage')
   async create(
     @MessageBody() createMessageDto: CreateMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const message = await this.chatService.create(createMessageDto, client.id);
+    const message = await this.messageService.create(
+      createMessageDto,
+      client.id,
+    );
 
     const response = {
       channelId: createMessageDto.channelId,
@@ -40,17 +43,17 @@ export class MessageGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage('findAllMessages')
   findAll(@MessageBody() createMessageDto: CreateMessageDto) {
-    return this.chatService.findAll(createMessageDto.channelId);
+    return this.messageService.findAll(createMessageDto.channelId);
   }
 
   @SubscribeMessage('findAllChannels')
   findAllChannels() {
-    return this.chatService.channelList;
+    return this.messageService.channelList;
   }
 
   @SubscribeMessage('findAllUsers')
   findAllUsers() {
-    return Object.values(this.chatService.clientToUser);
+    return Object.values(this.messageService.clientToUser);
   }
 
   @SubscribeMessage('join')
@@ -58,7 +61,7 @@ export class MessageGateway implements OnGatewayDisconnect {
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
-    this.chatService.identify(name, client.id);
+    this.messageService.identify(name, client.id);
     this.server.emit('joinUser');
   }
 
@@ -67,12 +70,12 @@ export class MessageGateway implements OnGatewayDisconnect {
     @MessageBody('isTyping') isTyping: boolean,
     @ConnectedSocket() client: Socket,
   ) {
-    const name = await this.chatService.getClientName(client.id);
+    const name = await this.messageService.getClientName(client.id);
     client.broadcast.emit('typing', { name, isTyping } as any);
   }
 
   handleDisconnect(client: Socket): any {
-    this.chatService.disconnect(client.id);
+    this.messageService.disconnect(client.id);
     this.server.emit('joinUser');
   }
 }
