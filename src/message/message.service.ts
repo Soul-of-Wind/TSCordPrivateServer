@@ -36,6 +36,10 @@ export class MessageService {
     return Object.values(this.clientToUser);
   }
 
+  disconnect(clientId: string) {
+    delete this.clientToUser[clientId];
+  }
+
   getClientName(clientId: string) {
     return this.clientToUser[clientId];
   }

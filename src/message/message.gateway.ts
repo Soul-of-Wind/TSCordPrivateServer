@@ -1,6 +1,7 @@
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -8,13 +9,14 @@ import {
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io';
+import { response } from 'express';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
   },
 })
-export class MessageGateway {
+export class MessageGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
@@ -46,12 +48,18 @@ export class MessageGateway {
     return this.chatService.channelList;
   }
 
+  @SubscribeMessage('findAllUsers')
+  findAllUsers() {
+    return Object.values(this.chatService.clientToUser);
+  }
+
   @SubscribeMessage('join')
   joinRoom(
     @MessageBody('name') name: string,
     @ConnectedSocket() client: Socket,
   ) {
-    return this.chatService.identify(name, client.id);
+    this.chatService.identify(name, client.id);
+    this.server.emit('joinUser');
   }
 
   @SubscribeMessage('typing')
@@ -61,5 +69,10 @@ export class MessageGateway {
   ) {
     const name = await this.chatService.getClientName(client.id);
     client.broadcast.emit('typing', { name, isTyping } as any);
+  }
+
+  handleDisconnect(client: Socket): any {
+    this.chatService.disconnect(client.id);
+    this.server.emit('joinUser');
   }
 }
