@@ -1,20 +1,15 @@
 import { MessageEntity } from '../entities/message.entity';
-import { IsNumber, IsDefined, Min, IsString, MinLength } from 'class-validator';
-import { IsNotBlank } from 'nestjs-validators';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateMessageDto extends MessageEntity {
-  @IsDefined()
-  @IsNumber()
-  @Min(1)
+  @IsNotEmpty()
   channelId: number;
 
-  @IsDefined()
+  @IsNotEmpty()
   @IsString()
-  @MinLength(1)
-  @IsNotBlank()
   text: string;
 
-  @IsDefined()
+  @IsNotEmpty()
   @IsString()
   name: string;
 }

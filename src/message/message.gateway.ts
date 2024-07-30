@@ -8,6 +8,8 @@ import {
 import { MessageService } from './message.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Server, Socket } from 'socket.io';
+import { UsePipes, ValidationPipe, UseFilters } from '@nestjs/common';
+import { WsExceptionFilter } from './filters/ws-exception.filter';
 
 @WebSocketGateway({
   cors: {
@@ -21,19 +23,28 @@ export class MessageGateway {
   constructor(private readonly chatService: MessageService) {}
 
   @SubscribeMessage('createMessage')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  @UseFilters(new WsExceptionFilter())
   async create(
     @MessageBody() createMessageDto: CreateMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    const message = await this.chatService.create(createMessageDto, client.id);
+    try {
+      const message = await this.chatService.create(
+        createMessageDto,
+        client.id,
+      );
 
-    const response = {
-      channelId: createMessageDto.channelId,
-      message: message,
-    };
+      const response = {
+        channelId: createMessageDto.channelId,
+        message: message,
+      };
 
-    this.server.emit('message', response as any);
-    return response;
+      this.server.emit('message', response as any);
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @SubscribeMessage('findAllMessages')

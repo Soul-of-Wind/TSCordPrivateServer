@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UsePipes } from '@nestjs/common';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { ChannelEntity } from './entities/channel.entity';
-import moment from 'moment';
 
 @Injectable()
 export class MessageService {
@@ -13,10 +12,33 @@ export class MessageService {
   clientToUser = {};
 
   async create(createMessageDto: CreateMessageDto, clientId: string) {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month =
+      currentDate.getMonth() >= 10
+        ? currentDate.getMonth() + 1
+        : '0' + (currentDate.getMonth() + 1);
+    const days =
+      currentDate.getDate() >= 10
+        ? currentDate.getDate()
+        : '0' + currentDate.getDate();
+    const hours =
+      currentDate.getHours() >= 10
+        ? currentDate.getHours()
+        : '0' + currentDate.getHours();
+    const minutes =
+      currentDate.getMinutes() >= 10
+        ? currentDate.getMinutes()
+        : '0' + currentDate.getMinutes();
+    const seconds =
+      currentDate.getSeconds() >= 10
+        ? currentDate.getSeconds()
+        : '0' + currentDate.getSeconds();
+
     const message = {
       name: this.clientToUser[clientId],
       text: createMessageDto.text,
-      created: moment().format('Y-m-d H:i:s'),
+      created: `${year}-${month}-${days} ${hours}:${minutes}:${seconds}`,
     };
 
     this.getChannel(createMessageDto.channelId)?.messages.push(message);
